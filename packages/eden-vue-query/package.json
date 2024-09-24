@@ -1,0 +1,29 @@
+{
+  "name": "@ap0nia/eden-vue-query",
+  "version": "1.0.12",
+  "description": "elysia.js eden and vue-query integration",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ap0nia/eden-query",
+    "directory": "packages/eden-vue-query"
+  },
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@ap0nia/eden": "1.0.11",
+    "@tanstack/vue-query": "^5.56.2",
+    "elysia": "1.1.13",
+    "vue": "^3.5.6"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  },
+  "peerDependencies": {
+    "@tanstack/vue-query": "^5.56.2",
+    "elysia": "1.1.13"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
