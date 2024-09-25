@@ -1,3 +1,5 @@
+import type { MaybeRef } from 'vue'
+
 /**
  *
  * An eden-treaty proxy may look like these examples:
@@ -40,7 +42,7 @@ export type ExtractEdenTreatyRouteParams<T> = {
 }
 
 export type ExtractEdenTreatyRouteParamsInput<T> = {
-  [K in keyof T as K extends `:${infer TParam}` ? TParam : never]: string | number
+  [K in keyof T as K extends `:${infer TParam}` ? TParam : never]: MaybeRef<string | number>
 }
 
 export type ExtractRouteParam<T> = T extends `:${infer TParam}` ? TParam : T

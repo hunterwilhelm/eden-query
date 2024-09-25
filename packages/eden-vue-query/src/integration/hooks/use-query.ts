@@ -2,7 +2,7 @@ import {
   type EdenRequestParams,
   type InferRouteError,
   type InferRouteOptions,
-  type InferRouteOutput
+  type InferRouteOutput,
 } from '@ap0nia/eden'
 import {
   type DefaultError,
@@ -13,9 +13,10 @@ import {
   skipToken,
   type UseQueryDefinedReturnType,
   type UseQueryOptions,
-  type UseQueryReturnType
+  type UseQueryReturnType,
 } from '@tanstack/vue-query'
 import type { RouteSchema } from 'elysia'
+import { type MaybeRef } from 'vue'
 
 import type { EdenQueryConfig } from '../../config'
 import { type EdenContextState } from '../../context'
@@ -26,8 +27,13 @@ import type { WithEdenQueryExtension } from '../internal/query-hook-extension'
 import { getQueryKey } from '../internal/query-key'
 
 // @tanstack/vue-query isn't exporting this type
-interface UseBaseQueryOptions<TQueryFnData = unknown, TError = DefaultError, TData = TQueryFnData, TQueryData = TQueryFnData, TQueryKey extends QueryKey = QueryKey> extends QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey> {
-}
+interface UseBaseQueryOptions<
+  TQueryFnData = unknown,
+  TError = DefaultError,
+  TData = TQueryFnData,
+  TQueryData = TQueryFnData,
+  TQueryKey extends QueryKey = QueryKey,
+> extends QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey> {}
 
 export type EdenUseQueryOptions<
   TOutput,
@@ -62,18 +68,17 @@ export interface EdenUseQuery<
   TInput = InferRouteOptions<TRoute>['query'],
   TOutput = InferRouteOutput<TRoute>,
   TError = InferRouteError<TRoute>,
-  > {
+> {
   <TQueryFnData extends TOutput = TOutput, TData = TQueryFnData>(
     input: {} extends TInput ? void | TInput : TInput,
     options: EdenDefinedUseQueryOptions<TQueryFnData, TData, TError, TOutput>,
   ): EdenDefinedUseQueryResult<TData, TError>
 
   <TQueryFnData extends TOutput = TOutput, TData = TQueryFnData>(
-    input: ({} extends TInput ? void | TInput : TInput) | SkipToken,
+    input: MaybeRef<({} extends TInput ? void | TInput : TInput) | SkipToken>,
     options?: EdenUseQueryOptions<TQueryFnData, TData, TError, TOutput>,
   ): EdenUseQueryResult<TData, TError>
 }
-
 
 export function edenUseQueryOptions(
   parsedPathAndMethod: ParsedPathAndMethod,
@@ -93,7 +98,6 @@ export function edenUseQueryOptions(
 
   const defaultOptions = queryClient.getQueryDefaults(queryKey)
 
-
   const initialQueryOptions = { ...defaultOptions, ...options }
   const { eden, ...queryOptions } = initialQueryOptions
 
@@ -105,13 +109,15 @@ export function edenUseQueryOptions(
   }
 
   resolvedQueryOptions.queryFn = async (queryFunctionContext) => {
+    const fetcher = eden?.fetcher ?? config?.fetcher ?? globalThis.fetch
+
     const params: EdenRequestParams = {
       ...config,
       ...eden,
       options: input,
       path,
       method,
-      fetcher: eden?.fetcher ?? config?.fetcher ?? globalThis.fetch,
+      fetcher,
     }
 
     const shouldForwardSignal = eden?.abortOnUnmount ?? config?.abortOnUnmount ?? abortOnUnmount

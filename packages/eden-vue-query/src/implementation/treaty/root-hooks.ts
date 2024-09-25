@@ -14,7 +14,7 @@ import {
   useQueries as __useQueries,
   type UseQueriesOptions,
   useQuery as __useQuery,
-  useQueryClient
+  useQueryClient,
 } from '@tanstack/vue-query'
 import type { AnyElysia } from 'elysia'
 import { inject, type InjectionKey, type MaybeRef } from 'vue'
@@ -22,7 +22,11 @@ import { inject, type InjectionKey, type MaybeRef } from 'vue'
 import type { EdenQueryConfig } from '../../config'
 import type { EdenContextProps, EdenContextState, EdenProvider as EdenPlugin } from '../../context'
 import { createUtilityFunctions, EdenQueryInjectionKey } from '../../context'
-import { type EdenUseInfiniteQueryOptions, edenUseInfiniteQueryOptions, type EdenUseInfiniteQueryResult } from '../../integration/hooks/use-infinite-query'
+import {
+  type EdenUseInfiniteQueryOptions,
+  edenUseInfiniteQueryOptions,
+  type EdenUseInfiniteQueryResult,
+} from '../../integration/hooks/use-infinite-query'
 import type {
   EdenUseMutationOptions,
   EdenUseMutationResult,
@@ -33,7 +37,10 @@ import {
   edenUseQueryOptions,
   type EdenUseQueryResult,
 } from '../../integration/hooks/use-query'
-import { edenUseSubscription, type EdenUseSubscriptionOptions } from '../../integration/hooks/use-subscription'
+import {
+  edenUseSubscription,
+  type EdenUseSubscriptionOptions,
+} from '../../integration/hooks/use-subscription'
 import { parsePathsAndMethod } from '../../integration/internal/parse-paths-and-method'
 import { getEdenQueryExtension } from '../../integration/internal/query-hook-extension'
 import { createEdenTreatyQueryUtils } from './query-utils'
@@ -69,11 +76,7 @@ export function createEdenTreatyQueryRootHooks<
   }
 
   const createContext = (props: EdenContextProps<TElysia>) => {
-    const {
-      abortOnUnmount = false,
-      client,
-      queryClient,
-    } = props
+    const { abortOnUnmount = false, client, queryClient } = props
 
     const utilityFunctions = createUtilityFunctions({ client, queryClient })
 
@@ -95,11 +98,10 @@ export function createEdenTreatyQueryRootHooks<
 
     const contextValue = createContext({ abortOnUnmount, client, queryClient })
 
-
     return {
       install(app) {
         app.provide(Context, contextValue)
-      }
+      },
     }
   }
 
@@ -129,7 +131,6 @@ export function createEdenTreatyQueryRootHooks<
     const parsed = parsePathsAndMethod(originalPaths)
 
     const queryOptions = edenUseQueryOptions(parsed, context, input, options, config)
-
     type HookResult = EdenUseQueryResult<any, TError>
 
     const queryClient = context.queryClient ?? useQueryClient()
@@ -166,8 +167,6 @@ export function createEdenTreatyQueryRootHooks<
     return hook
   }
 
-
-
   const useQueries: EdenTreatyUseQueries<TElysia> = (queriesCallback) => {
     const context = useRawContext()
 
@@ -175,13 +174,17 @@ export function createEdenTreatyQueryRootHooks<
 
     const proxy = createTreatyUseQueriesProxy(client)
 
-    type MaybeRefDeep<T> = MaybeRef<T extends Function ? T : T extends object ? {
-      [Property in keyof T]: MaybeRefDeep<T[Property]>;
-    } : T>;
+    type MaybeRefDeep<T> = MaybeRef<
+      T extends Function
+        ? T
+        : T extends object
+          ? {
+              [Property in keyof T]: MaybeRefDeep<T[Property]>
+            }
+          : T
+    >
 
-    type UseQueriesOptionsArg<T extends Array<any>> = readonly [
-      ...UseQueriesOptions<T>
-    ];
+    type UseQueriesOptionsArg<T extends Array<any>> = readonly [...UseQueriesOptions<T>]
 
     const queries: MaybeRefDeep<UseQueriesOptionsArg<any>> = queriesCallback(proxy)
 
@@ -193,8 +196,6 @@ export function createEdenTreatyQueryRootHooks<
     input?: InferRouteOptions,
     options?: EdenUseMutationOptions<unknown, TError, unknown, unknown>,
   ): EdenUseMutationResult<unknown, TError, unknown, unknown, unknown> => {
-    console.log("HELLO", originalPaths, input, options)
-
     const context = useRawContext()
 
     const parsed = parsePathsAndMethod(originalPaths)

@@ -60,11 +60,10 @@ export type EdenTreatyQueryUtils<TElysia extends AnyElysia> = ProtectedIntersect
   EdenTreatyQueryUtilsProxy<TElysia['_routes']>
 >
 
-export type EdenTreatyQueryContextProps<
-  TElysia extends AnyElysia,
-> = EdenContextPropsBase<TElysia> & {
-  client: EdenCreateClient<TElysia>
-}
+export type EdenTreatyQueryContextProps<TElysia extends AnyElysia> =
+  EdenContextPropsBase<TElysia> & {
+    client: EdenCreateClient<TElysia>
+  }
 
 export type EdenTreatyQueryUtilsProxy<
   TSchema extends Record<string, any>,
@@ -87,9 +86,9 @@ type EdenTreatyQueryUtilsMapping<
   TInput extends InferRouteOptions<TRoute> = InferRouteOptions<TRoute>,
 > = TMethod extends HttpQueryMethod
   ? EdenTreatyQueryUtilsQueryUtils<TRoute, TPath> &
-  (InfiniteCursorKey extends keyof (TInput['params'] & TInput['query'])
-    ? EdenTreatyQueryUtilsInfiniteUtils<TRoute, TPath>
-    : {})
+      (InfiniteCursorKey extends keyof (TInput['params'] & TInput['query'])
+        ? EdenTreatyQueryUtilsInfiniteUtils<TRoute, TPath>
+        : {})
   : TMethod extends HttpMutationMethod
     ? EdenQueryUtilsMutationUtils<TRoute, TPath>
     : `Unknown HTTP Method: ${TMethod & string}`
@@ -242,7 +241,6 @@ export function createEdenTreatyQueryUtils<TRouter extends AnyElysia>(
   context: EdenContextState<TRouter>,
   config?: EdenQueryConfig<TRouter>,
 ): EdenTreatyQueryUtils<TRouter> {
-
   const proxy = createEdenTreatyQueryUtilsProxy(context, config)
 
   const utils = new Proxy(() => {}, {

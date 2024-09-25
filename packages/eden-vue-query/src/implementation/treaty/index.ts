@@ -38,19 +38,13 @@ import type { EdenTreatyQueryUtils } from './query-utils'
 import { createEdenTreatyQueryRootHooks, type EdenTreatyQueryRootHooks } from './root-hooks'
 import type { EdenTreatyUseQueries } from './use-queries'
 
-export type EdenTreatyVueQuery<TElysia extends AnyElysia> = EdenTreatyVueQueryBase<
-  TElysia
-> &
+export type EdenTreatyVueQuery<TElysia extends AnyElysia> = EdenTreatyVueQueryBase<TElysia> &
   EdenTreatyVueQueryHooks<TElysia>
 
 export type EdenTreatyVueQueryBase<TElysia extends AnyElysia> = {
-  createContext(
-    props: EdenContextProps<TElysia>,
-  ): EdenContextState<TElysia>
+  createContext(props: EdenContextProps<TElysia>): EdenContextState<TElysia>
 
-  createUtils(
-    props: EdenContextProps<TElysia>,
-  ): EdenTreatyQueryUtils<TElysia>
+  createUtils(props: EdenContextProps<TElysia>): EdenTreatyQueryUtils<TElysia>
 
   /**
    * @link https://trpc.io/docs/v11/client/vue/useUtils
@@ -91,21 +85,21 @@ export type EdenTreatyVueQueryHooksImplementation<
   ({} extends TRouteParams
     ? {}
     : (
-      params: ExtractEdenTreatyRouteParamsInput<TRouteParams>,
-    ) => EdenTreatyVueQueryHooksImplementation<
-      TSchema[Extract<keyof TRouteParams, keyof TSchema>],
-      TPath
-    >)
+        params: ExtractEdenTreatyRouteParamsInput<TRouteParams>,
+      ) => EdenTreatyVueQueryHooksImplementation<
+        TSchema[Extract<keyof TRouteParams, keyof TSchema>],
+        TPath
+      >)
 
 export type EdenTreatyVueQueryHooksProxy<
   TSchema extends Record<string, any>,
   TPath extends any[] = [],
   TRouteParams = ExtractEdenTreatyRouteParams<TSchema>,
 > = {
-    [K in Exclude<keyof TSchema, keyof TRouteParams>]: TSchema[K] extends RouteSchema
+  [K in Exclude<keyof TSchema, keyof TRouteParams>]: TSchema[K] extends RouteSchema
     ? EdenTreatyVueQueryRouteHooks<TSchema[K], K, TPath>
     : EdenTreatyVueQueryHooksImplementation<TSchema[K], [...TPath, K]>
-  }
+}
 
 /**
  * Maps a {@link RouteSchema} to an object with hooks.
@@ -121,13 +115,13 @@ export type EdenTreatyVueQueryRouteHooks<
 > = TMethod extends HttpQueryMethod
   ? EdenTreatyQueryMapping<TRoute, TPath>
   : TMethod extends HttpMutationMethod
-  ? EdenTreatyMutationMapping<TRoute, TPath>
-  : TMethod extends HttpSubscriptionMethod
-  ? EdenTreatySubscriptionMapping<TRoute, TPath>
-  : // Just add all possible operations since the route is unknown.
-  EdenTreatyQueryMapping<TRoute, TPath> &
-  EdenTreatyMutationMapping<TRoute, TPath> &
-  EdenTreatySubscriptionMapping<TRoute, TPath>
+    ? EdenTreatyMutationMapping<TRoute, TPath>
+    : TMethod extends HttpSubscriptionMethod
+      ? EdenTreatySubscriptionMapping<TRoute, TPath>
+      : // Just add all possible operations since the route is unknown.
+        EdenTreatyQueryMapping<TRoute, TPath> &
+          EdenTreatyMutationMapping<TRoute, TPath> &
+          EdenTreatySubscriptionMapping<TRoute, TPath>
 
 /**
  * Available hooks assuming that the route supports useQuery.
@@ -174,7 +168,7 @@ export function createEdenTreatyVueQuery<TElysia extends AnyElysia>(
 
   const edenTreatyVueQueryProxy = createEdenTreatyVueQueryProxy(rootHooks, config)
 
-  const edenTreatyQuery = new Proxy(() => { }, {
+  const edenTreatyQuery = new Proxy(() => {}, {
     get: (_target, path: string, _receiver): any => {
       if (Object.prototype.hasOwnProperty.call(rootHooks, path)) {
         return rootHooks[path as never]
@@ -192,7 +186,7 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
   paths: string[] = [],
   pathParams: Record<string, any>[] = [],
 ) {
-  const edenTreatyQueryProxy = new Proxy(() => { }, {
+  const edenTreatyQueryProxy = new Proxy(() => {}, {
     get: (_target, path: string, _receiver): any => {
       const nextPaths = path === 'index' ? [...paths] : [...paths, path]
       return createEdenTreatyVueQueryProxy(rootHooks, config, nextPaths, pathParams)

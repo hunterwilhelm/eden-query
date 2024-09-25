@@ -1,3 +1,5 @@
+import { isRef } from 'vue'
+
 import type { EdenTreatyQueryRootHooks } from '../implementation/treaty'
 import type { LiteralUnion } from './literal-union'
 
@@ -21,13 +23,19 @@ export function getPathParam(args: unknown[]) {
     return
   }
 
-  const argument = args[0]
+  const argument = args[0] as Record<string, any> | null | undefined
 
   if (argument == null || typeof argument !== 'object') {
     return
   }
 
   const argumentKeys = Object.keys(argument)
+  // This is a hack to make sure that the toString method is available for the path parameter.
+  for (const key in argument) {
+    if (isRef(argument[key])) {
+      argument[key].toString = () => argument[key].value?.toString()
+    }
+  }
 
   const pathParam = argumentKeys[0]
 
