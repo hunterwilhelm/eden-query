@@ -194,7 +194,7 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
     apply: (_target, _thisArg, args) => {
       const pathParam = getPathParam(args)
 
-      if (pathParam?.key != null) {
+      if (pathParam?.key != null && pathParam.key !== 'onSuccess') {
         const allPathParams = [...pathParams, pathParam.param]
         const pathsWithParams = [...paths, `:${pathParam.key}`]
         return createEdenTreatyVueQueryProxy(rootHooks, config, pathsWithParams, allPathParams)
