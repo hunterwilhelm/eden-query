@@ -1,4 +1,4 @@
-import { edenPlugin } from '@ap0nia/eden-react-query'
+import { edenPlugin } from '@ap0nia/eden-Vue-query'
 import { cors } from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 import SuperJSON from 'superjson'
@@ -50,10 +50,28 @@ function createRandomId() {
  */
 const rootController = new Elysia()
   .get('/', () => {
-    return 'Hello, React!'
+    return 'Hello, Vue!'
   })
   .get('/bye', () => {
-    return 'Goodbye, React!'
+    return 'Goodbye, Vue!'
+  })
+  .get(
+    '/hello',
+    (context) => {
+      const search = context.query.search
+
+      if (search == null) return names
+
+      return names.filter((name) => name.toLowerCase().includes(search.toLowerCase()))
+    },
+    {
+      query: t.Object({
+        search: t.Optional(t.String()),
+      }),
+    },
+  )
+  .post('/mutate/goodbye', () => {
+    return `Goodbye, Vue!`
   })
   .get(
     '/names',

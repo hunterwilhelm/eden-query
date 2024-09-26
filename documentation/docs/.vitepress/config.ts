@@ -328,6 +328,73 @@ const config = defineConfig({
               },
             ],
           },
+          {
+            text: 'Eden-Vue-Query',
+            collapsed: true,
+            link: '/eden-query/vue/index.md',
+            items: [
+              {
+                text: 'Setup',
+                link: '/eden-query/vue/setup',
+                docFooterText: 'Setup',
+              },
+              {
+                text: 'Inferring Types',
+                link: '/eden-query/vue/inferring-types',
+                docFooterText: 'Inferring Types',
+              },
+              {
+                text: 'useQuery()',
+                link: '/eden-query/vue/useQuery',
+                docFooterText: 'useQuery',
+              },
+              {
+                text: 'useMutation()',
+                link: '/eden-query/vue/useMutation',
+                docFooterText: 'useMutation',
+              },
+              {
+                text: 'useInfiniteQuery()',
+                link: '/eden-query/vue/useInfiniteQuery',
+                docFooterText: 'useInfiniteQuery',
+              },
+              {
+                text: 'useUtils()',
+                link: '/eden-query/vue/useUtils',
+                docFooterText: 'useUtils',
+              },
+              {
+                text: 'createUtils()',
+                link: '/eden-query/vue/createUtils',
+                docFooterText: 'createUtils',
+              },
+              {
+                text: 'useQueries()',
+                link: '/eden-query/vue/useQueries',
+                docFooterText: 'useQueries',
+              },
+              {
+                text: 'Suspense',
+                link: '/eden-query/vue/suspense',
+                docFooterText: 'Suspense',
+              },
+              {
+                text: 'getQueryKey()',
+                link: '/eden-query/vue/getQueryKey',
+                docFooterText: 'getQueryKey',
+              },
+              {
+                text: 'Aborting Requests',
+                link: '/eden-query/vue/aborting',
+                docFooterText: 'Aborting Requests',
+              },
+              {
+                text: 'Disabling Queries',
+                link: '/eden-query/vue/disabling',
+                docFooterText: 'Disabling Queries',
+              },
+            ],
+          },
         ],
       },
     ],
