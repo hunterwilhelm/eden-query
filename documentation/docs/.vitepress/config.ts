@@ -1,6 +1,7 @@
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import ci from 'ci-info'
 import { bundledLanguages, createHighlighter } from 'shiki'
+import { ModuleResolutionKind } from 'typescript'
 import { defineConfig } from 'vitepress'
 import { repository } from '../../../package.json'
 import { npmToYarn } from './npm-to-yarn'
@@ -13,6 +14,8 @@ const description =
   'Ergonomic Framework for Humans. TypeScript server framework supercharged by Bun with End-to-End Type Safety, unified type system and outstanding developer experience.'
 
 const base = ci.GITHUB_ACTIONS ? `/${repositoryName.replace('.git', '')}/` : ''
+
+console.log({ ci, base })
 
 const includes = new Map<string, string>()
 
@@ -50,7 +53,13 @@ const config = defineConfig({
           return codeWithIncludes
         },
       },
-      transformerTwoslash(),
+      transformerTwoslash({
+        twoslashOptions: {
+          compilerOptions: {
+            moduleResolution: ModuleResolutionKind.Bundler,
+          },
+        },
+      }),
     ],
   },
   head: [

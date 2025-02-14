@@ -1,8 +1,10 @@
 import {
   type EdenRequestParams,
+  type EmptyToVoid,
   type InferRouteError,
   type InferRouteOptions,
   type InferRouteOutput,
+  type ParsedPathAndMethod,
 } from '@ap0nia/eden'
 import {
   type DefinedUseQueryResult,
@@ -21,7 +23,6 @@ import type { RouteSchema } from 'elysia'
 import type { EdenQueryConfig } from '../../config'
 import { type EdenContextState, type SSRState, useSSRQueryOptionsIfNeeded } from '../../context'
 import type { DistributiveOmit } from '../../utils/types'
-import type { ParsedPathAndMethod } from '../internal/parse-paths-and-method'
 import type { EdenQueryBaseOptions } from '../internal/query-base-options'
 import type { WithEdenQueryExtension } from '../internal/query-hook-extension'
 import { getQueryKey } from '../internal/query-key'
@@ -61,12 +62,12 @@ export interface EdenUseQuery<
   TError = InferRouteError<TRoute>,
 > {
   <TQueryFnData extends TOutput = TOutput, TData = TQueryFnData>(
-    input: {} extends TInput ? void | TInput : TInput,
+    input: EmptyToVoid<TInput>,
     options: EdenDefinedUseQueryOptions<TQueryFnData, TData, TError, TOutput>,
   ): EdenDefinedUseQueryResult<TData, TError>
 
   <TQueryFnData extends TOutput = TOutput, TData = TQueryFnData>(
-    input: ({} extends TInput ? void | TInput : TInput) | SkipToken,
+    input: EmptyToVoid<TInput> | SkipToken,
     options?: EdenUseQueryOptions<TQueryFnData, TData, TError, TOutput>,
   ): EdenUseQueryResult<TData, TError>
 }

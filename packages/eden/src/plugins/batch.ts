@@ -5,6 +5,7 @@ import type { EdenQueryStoreKey } from '../constraints'
 import { parseResponse } from '../resolve'
 import { createUrl } from '../utils/create-url'
 import { set } from '../utils/set'
+import type { GenericElysiaPlugin } from './types'
 
 /**
  * Individual request data that can be extracted from a {@link Request} that contains
@@ -227,7 +228,7 @@ function unBatchQueries(request: Request): URLSearchParams[] {
  * This may result in a TS error if you have "declaration": true in your tsconfig.
  * TS 4118 The type of this node cannot be serialized because its property '[EdenQueryStoreKey]' cannot be serialized.
  */
-export function batchPlugin(options?: BatchPluginOptions) {
+export function safeBatchPlugin(options?: BatchPluginOptions) {
   const plugin = <BasePath extends string>(
     elysia: Elysia<BasePath>,
   ): Elysia<
@@ -361,4 +362,10 @@ export function batchPlugin(options?: BatchPluginOptions) {
   }
 
   return plugin
+}
+
+export function batchPlugin<T extends Elysia = Elysia>(
+  options?: BatchPluginOptions,
+): GenericElysiaPlugin<T> {
+  return safeBatchPlugin(options) as any
 }

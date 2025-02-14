@@ -1,15 +1,15 @@
-// @ts-check
 import { defineConfig } from 'tsup'
 
 const config = defineConfig({
-  entry: ['src/index.ts'],
-  bundle: true,
-  format: ['esm'],
-
-  /**
-   * @see https://github.com/egoist/tsup/issues/619#issuecomment-1420423401
-   */
-  noExternal: [/(.*)/],
+  entry: {
+    index: './src/index.ts',
+    server: './src/server.ts',
+  },
+  clean: true,
+  dts: true,
+  sourcemap: true,
+  format: ['esm', 'cjs'],
+  noExternal: ['@ap0nia'],
 })
 
 export default config

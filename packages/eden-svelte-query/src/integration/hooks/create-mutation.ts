@@ -4,6 +4,7 @@ import type {
   InferRouteError,
   InferRouteOptions,
   InferRouteOutput,
+  ParsedPathAndMethod,
 } from '@ap0nia/eden'
 import {
   type CreateBaseMutationResult,
@@ -21,7 +22,6 @@ import { derived, type Readable } from 'svelte/store'
 
 import type { EdenContextState } from '../../context'
 import type { Override } from '../../utils/types'
-import type { ParsedPathAndMethod } from '../internal/parse-paths-and-method'
 import type { EdenQueryBaseOptions } from '../internal/query-base-options'
 import type { WithEdenQueryExtension } from '../internal/query-hook-extension'
 import { getMutationKey } from '../internal/query-key'
@@ -151,8 +151,6 @@ export function createEdenMutation<
 export function edenCreateMutationOptions(
   parsedPathsAndMethod: ParsedPathAndMethod,
   context: EdenContextState<any, any>,
-  // Default input.
-  input?: InferRouteOptions,
   options: EdenCreateMutationOptions<any, any, any> = {},
   config?: any,
 ): CreateMutationOptions {
@@ -172,11 +170,10 @@ export function edenCreateMutationOptions(
     mutationKey,
     mutationFn: async (variables: any = {}) => {
       const { body, options } = variables as EdenCreateMutationVariables
-      const resolvedOptions = { ...input, ...options }
 
       const params = {
         ...config,
-        options: resolvedOptions,
+        options,
         body,
         path,
         method,

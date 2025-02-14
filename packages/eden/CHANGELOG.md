@@ -1,5 +1,75 @@
 # @ap0nia/eden
 
+## 1.6.0
+
+### Minor Changes
+
+- 37ee3c0: feat: generalized input types
+
+## 1.5.0
+
+### Minor Changes
+
+- ef7456e: feat: use tsup to bundle packages before release
+
+### Patch Changes
+
+- c9dbba8: fix: package.json exports
+
+## 1.4.1
+
+### Patch Changes
+
+- 17ddc6e: fix(eden): treaty types
+
+## 1.4.0
+
+### Minor Changes
+
+- c76900c: feat: eden-treaty and updated APIs
+
+## 1.3.1
+
+### Patch Changes
+
+- 17b99f2: fix(eden): infinite recursion on http-link
+
+## 1.3.0
+
+### Minor Changes
+
+- 3e231fd: refactor(eden): expose server plugins in different entrypoint file
+
+## 1.2.1
+
+### Patch Changes
+
+- 25151e7: refactor(eden): make eden plugin unsafe by default
+
+## 1.2.0
+
+### Minor Changes
+
+- 456df95: fix(eden): updated error checker
+
+## 1.1.0
+
+### Minor Changes
+
+- 5ff7808: refactor: default to unsafe http and http-batch links
+
+## 1.0.13
+
+### Patch Changes
+
+- 17424ac: fix(eden): temporary fix for inconsistent error handling from mapResponse
+
+## 1.0.12
+
+### Patch Changes
+
+- ec1fa09: fix(eden): do not initialize plugins multiple times
+
 ## 1.0.11
 
 ### Patch Changes

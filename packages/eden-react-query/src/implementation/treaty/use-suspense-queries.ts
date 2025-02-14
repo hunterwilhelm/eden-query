@@ -1,11 +1,15 @@
-import type { EdenClient, InferRouteError, InferRouteOptions, InferRouteOutput } from '@ap0nia/eden'
+import type {
+  EdenClient,
+  EmptyToVoid,
+  ExtractEdenTreatyRouteParams,
+  ExtractEdenTreatyRouteParamsInput,
+  InferRouteError,
+  InferRouteOptions,
+  InferRouteOutput,
+} from '@ap0nia/eden'
 import type { SuspenseQueriesOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 import type { AnyElysia, RouteSchema } from 'elysia'
 
-import type {
-  ExtractEdenTreatyRouteParams,
-  ExtractEdenTreatyRouteParamsInput,
-} from '../../integration/internal/path-params'
 import type { UseQueryOptionsForUseSuspenseQueries } from '../../integration/internal/use-query-options-for-use-suspense-queries'
 import { createTreatyUseQueriesProxy } from './use-queries'
 
@@ -53,7 +57,7 @@ export type UseSuspenseQueriesHook<
   TOutput = InferRouteOutput<TRoute>,
   TError = InferRouteError<TRoute>,
 > = (
-  input: {} extends TInput ? void | TInput : TInput,
+  input: EmptyToVoid<TInput>,
   opts?: UseQueryOptionsForUseSuspenseQueries<TOutput, TError>,
 ) => UseQueryOptionsForUseSuspenseQueries<TOutput, TError>
 

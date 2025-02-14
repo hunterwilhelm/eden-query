@@ -1,5 +1,90 @@
 # eden-react-query-basic
 
+## 0.0.34
+
+### Patch Changes
+
+- Updated dependencies [37ee3c0]
+  - @ap0nia/eden-react-query@1.6.0
+
+## 0.0.33
+
+### Patch Changes
+
+- Updated dependencies [ef7456e]
+- Updated dependencies [c9dbba8]
+  - @ap0nia/eden-react-query@1.5.0
+
+## 0.0.32
+
+### Patch Changes
+
+- Updated dependencies [8de6067]
+- Updated dependencies [17ddc6e]
+  - @ap0nia/eden-react-query@1.4.1
+
+## 0.0.31
+
+### Patch Changes
+
+- Updated dependencies [c76900c]
+  - @ap0nia/eden-react-query@1.4.0
+
+## 0.0.30
+
+### Patch Changes
+
+- Updated dependencies [17b99f2]
+  - @ap0nia/eden-react-query@1.3.1
+
+## 0.0.29
+
+### Patch Changes
+
+- Updated dependencies [3e231fd]
+  - @ap0nia/eden-react-query@1.3.0
+
+## 0.0.28
+
+### Patch Changes
+
+- Updated dependencies [25151e7]
+  - @ap0nia/eden-react-query@1.2.1
+
+## 0.0.27
+
+### Patch Changes
+
+- Updated dependencies [456df95]
+  - @ap0nia/eden-react-query@1.2.0
+
+## 0.0.26
+
+### Patch Changes
+
+- Updated dependencies [5ff7808]
+  - @ap0nia/eden-react-query@1.1.0
+
+## 0.0.25
+
+### Patch Changes
+
+- Updated dependencies [47d786f]
+  - @ap0nia/eden-react-query@1.0.15
+
+## 0.0.24
+
+### Patch Changes
+
+- @ap0nia/eden-react-query@1.0.14
+
+## 0.0.23
+
+### Patch Changes
+
+- Updated dependencies [ec1fa09]
+  - @ap0nia/eden-react-query@1.0.13
+
 ## 0.0.22
 
 ### Patch Changes

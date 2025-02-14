@@ -7,6 +7,7 @@ import {
   httpLink,
   type HTTPLinkOptions,
   type InferRouteOptions,
+  parsePathsAndMethod,
 } from '@ap0nia/eden'
 import {
   createInfiniteQuery as __createInfiniteQuery,
@@ -44,11 +45,13 @@ import {
   type EdenCreateQueryResult,
 } from '../../integration/hooks/create-query'
 import type { EdenCreateQueryOptionsForCreateQueries } from '../../integration/internal/create-query-options-for-create-queries'
-import { parsePathsAndMethod } from '../../integration/internal/parse-paths-and-method'
 import { getEdenQueryHookExtension } from '../../integration/internal/query-hook-extension'
 import { isStore } from '../../utils/is-store'
-import { createTreatyCreateQueriesProxy, type EdenTreatyCreateQueries } from './create-queries'
-import { createEdenTreatyQueryUtils, type EdenTreatyQueryUtils } from './query-utils'
+import {
+  createTreatySvelteQueryCreateQueriesProxy,
+  type EdenTreatySvelteQueryCreateQueries,
+} from './create-queries'
+import { createEdenTreatyQueryUtils, type EdenTreatySvelteQueryUtils } from './query-utils'
 
 export function createEdenTreatyQueryRootHooks<
   TElysia extends AnyElysia,
@@ -99,7 +102,7 @@ export function createEdenTreatyQueryRootHooks<
   const createUtils = (
     props: EdenContextProps<TElysia, TSSRContext>,
     configOverride = config,
-  ): EdenTreatyQueryUtils<TElysia, TSSRContext> => {
+  ): EdenTreatySvelteQueryUtils<TElysia, TSSRContext> => {
     const context = createContext(props, configOverride)
     const utils = createEdenTreatyQueryUtils(context, configOverride)
     return utils
@@ -117,6 +120,11 @@ export function createEdenTreatyQueryRootHooks<
     return __getContext(EDEN_CONTEXT_KEY)
   }
 
+  /**
+   * tRPC creates a new proxy from the provided context for all `useUtils` calls.
+   *
+   * @see https://github.com/trpc/trpc/blob/52a57eaa9c12394778abf5f0e6b52ec6f46288ed/packages/react-query/src/createTRPCReact.tsx#L509
+   */
   const getContext = (context = getRawContext(), configOverride = config) => {
     return createEdenTreatyQueryUtils(context, configOverride)
   }
@@ -162,12 +170,12 @@ export function createEdenTreatyQueryRootHooks<
     return hook
   }
 
-  const createQueries: EdenTreatyCreateQueries<TElysia> = (queriesCallback) => {
+  const createQueries: EdenTreatySvelteQueryCreateQueries<TElysia> = (queriesCallback) => {
     const context = getRawContext()
 
     const { queryClient, client } = context
 
-    const proxy = createTreatyCreateQueriesProxy(client)
+    const proxy = createTreatySvelteQueryCreateQueriesProxy(client)
 
     const queries: readonly EdenCreateQueryOptionsForCreateQueries<any, any>[] =
       queriesCallback(proxy)
@@ -218,7 +226,6 @@ export function createEdenTreatyQueryRootHooks<
 
   const createMutation = (
     originalPaths: readonly string[],
-    input?: StoreOrVal<InferRouteOptions>,
     options?: StoreOrVal<EdenCreateMutationOptions<unknown, TError, unknown, unknown>>,
   ): EdenCreateMutationResult<unknown, TError, unknown, unknown, unknown> => {
     const context = getRawContext()
@@ -231,8 +238,8 @@ export function createEdenTreatyQueryRootHooks<
 
     type HookResult = EdenCreateMutationResult<unknown, TError, unknown, unknown, any>
 
-    if (!isStore(input) && !isStore(options)) {
-      const mutationOptions = edenCreateMutationOptions(parsed, context, input, options, config)
+    if (!isStore(options)) {
+      const mutationOptions = edenCreateMutationOptions(parsed, context, options, config)
 
       const hook = createEdenMutation(mutationOptions, queryClient) as HookResult
 
@@ -241,12 +248,10 @@ export function createEdenTreatyQueryRootHooks<
       return hook
     }
 
-    const inputStore = isStore(input) ? input : readable(input)
-
     const optionsStore = isStore(options) ? options : readable(options)
 
-    const mutationOptionsStore = derived([inputStore, optionsStore], ([$input, $options]) => {
-      const mutationOptions = edenCreateMutationOptions(parsed, context, $input, $options, config)
+    const mutationOptionsStore = derived(optionsStore, ($options) => {
+      const mutationOptions = edenCreateMutationOptions(parsed, context, $options, config)
       return mutationOptions
     })
 

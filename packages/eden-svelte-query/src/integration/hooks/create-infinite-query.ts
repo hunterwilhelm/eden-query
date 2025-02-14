@@ -1,8 +1,10 @@
 import type {
   EdenRequestParams,
+  EmptyToVoid,
   InferRouteError,
   InferRouteOptions,
   InferRouteOutput,
+  ParsedPathAndMethod,
 } from '@ap0nia/eden'
 import {
   type CreateInfiniteQueryOptions,
@@ -19,7 +21,6 @@ import type { EdenQueryConfig } from '../../config'
 import type { EdenContextState } from '../../context'
 import type { DistributiveOmit } from '../../utils/types'
 import type { ExtractQueryCursor, ReservedInfiniteQueryKeys } from '../internal/infinite-query'
-import type { ParsedPathAndMethod } from '../internal/parse-paths-and-method'
 import type { EdenQueryBaseOptions } from '../internal/query-base-options'
 import type { WithEdenQueryExtension } from '../internal/query-hook-extension'
 import { getQueryKey } from '../internal/query-key'
@@ -63,9 +64,7 @@ export type EdenCreateInfiniteQuery<
   TError = InferRouteError<TRoute>,
   TInfiniteInput = InferRouteOptions<TRoute, ReservedInfiniteQueryKeys>['query'],
 > = (
-  input: StoreOrVal<
-    ({} extends TInfiniteInput ? void | TInfiniteInput : TInfiniteInput) | SkipToken
-  >,
+  input: StoreOrVal<EmptyToVoid<TInfiniteInput> | SkipToken>,
   options: EdenCreateInfiniteQueryOptions<TInput, TOutput, TError>,
 ) => EdenCreateInfiniteQueryResult<TOutput, TError, TInput>
 
