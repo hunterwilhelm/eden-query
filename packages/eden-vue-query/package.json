@@ -1,0 +1,58 @@
+{
+  "name": "@ap0nia/eden-vue-query",
+  "version": "1.0.0",
+  "description": "elysia.js eden and vue-query integration",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ap0nia/eden-query",
+    "directory": "packages/eden-vue-query"
+  },
+  "scripts": {
+    "build": "tsup && tsc --emitDeclarationOnly --declaration"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "require": "./dist/*.cjs",
+      "default": "./dist/*.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ],
+      "./*": [
+        "./dist/*.d.ts"
+      ]
+    }
+  },
+  "dependencies": {
+    "@ap0nia/eden": "workspace:^",
+    "@tanstack/vue-query": "^5.51.16",
+    "elysia": "1.1.19"
+  },
+  "devDependencies": {
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4"
+  },
+  "peerDependencies": {
+    "@tanstack/vue-query": "^5.51.16",
+    "elysia": "1.1.19",
+    "vue": "^3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
