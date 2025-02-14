@@ -1,0 +1,34 @@
+{
+  "name": "eden-vue-query-basic",
+  "version": "0.0.34",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev",
+    "dev:server": "bun --watch run-server.ts",
+    "dev:all": "concurrently \"vite dev\" \"bun --watch run-server.ts\""
+  },
+  "type": "module",
+  "dependencies": {
+    "@ap0nia/eden-vue-query": "workspace:^",
+    "@elysiajs/cors": "^1.1.0",
+    "@tanstack/vue-query": "^5.51.16",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "elysia": "1.1.19",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.0",
+    "superjson": "^2.2.1",
+    "vite-plugin-vue-devtools": "^7.7.2",
+    "vue": "^3.4.30",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5"
+  }
+}
