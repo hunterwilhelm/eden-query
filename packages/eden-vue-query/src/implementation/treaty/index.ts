@@ -1,9 +1,11 @@
 import {
+  EdenClient,
   type EdenCreateClient,
   type EdenRequestOptions,
   type ExtractEdenTreatyRouteParams,
   type ExtractEdenTreatyRouteParamsInput,
   getPathParam,
+  type HttpBatchLinkOptions,
   type HttpMutationMethod,
   type HttpQueryMethod,
   type HttpSubscriptionMethod,
@@ -16,6 +18,7 @@ import type { EdenQueryConfig } from '../../config'
 import type { EdenPlugin } from '../../context'
 import { mutateArgs } from '../../utils/path-param'
 import type { EdenQueryKey } from '../internal/query-key'
+import type { EdenTreatyVueQueryUtils } from './query-utils'
 import { createEdenTreatyQueryRootHooks } from './root-hooks'
 import type { EdenUseMutation } from './use-mutation'
 import type { EdenUseQuery } from './use-query'
@@ -39,7 +42,7 @@ export interface EdenTreatyVueQueryBase<TElysia extends AnyElysia, TSSRContext> 
    *
    * @see https://trpc.io/docs/v11/client/vue/useUtils
    */
-  // useUtils(): EdenTreatyVueQueryUtils<TElysia, TSSRContext>
+  useUtils(): EdenTreatyVueQueryUtils<TElysia, TSSRContext>
   /**
    * Returns everything that will be provided from context.
    *
@@ -54,14 +57,6 @@ export interface EdenTreatyVueQueryBase<TElysia extends AnyElysia, TSSRContext> 
   // createUtils(
   //   props: EdenContextProps<TElysia, TSSRContext>,
   // ): EdenTreatyVueQueryUtils<TElysia, TSSRContext>
-  /**
-   * Get utilities provided via the context API.
-   *
-   * @deprecated renamed to {@link useUtils} and will be removed in a future tRPC version
-   *
-   * @link https://trpc.io/docs/v11/client/vue/useUtils
-   */
-  // useContext(): EdenTreatyVueQueryUtils<TElysia, TSSRContext>
   /**
    * Vue.Provider to set the context.
    */
@@ -86,7 +81,7 @@ export interface EdenTreatyVueQueryBase<TElysia extends AnyElysia, TSSRContext> 
   /**
    * Convenience method for creating and configuring a client with a single HttpBatchLink.
    */
-  // createHttpBatchClient: (options?: HttpBatchLinkOptions<TElysia>) => EdenClient<TElysia>
+  createHttpBatchClient: (options?: HttpBatchLinkOptions<TElysia>) => EdenClient<TElysia>
 }
 
 /**
@@ -292,15 +287,11 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
   rootHooks: EdenTreatyQueryRootHooks<T>,
   config?: EdenQueryConfig<T>,
   paths: (string | symbol)[] = [],
-  pathParams = [],
+  pathParams: Record<string, any>[] = [],
 ) {
   const edenTreatyQueryProxy = new Proxy(() => {}, {
     get: (_target, path: string, _receiver): any => {
-      // Copy the paths so that it will not be mutated in a nested proxy.
-      // Only add the current path if is not "index".
       const nextPaths = path === 'index' ? [...paths] : [...paths, path]
-
-      //  Return a nested proxy that has the new paths.
       return createEdenTreatyVueQueryProxy(rootHooks, config, nextPaths, pathParams)
     },
     apply: (_target, _thisArg, args) => {
@@ -310,7 +301,7 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
       const pathsCopy = [...paths]
 
       /**
-       * @example 'createQuery'
+       * @example 'useQuery'
        */
       const hook = pathsCopy.pop() ?? ''
 
@@ -329,54 +320,44 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
        * @example { param: { id: '123' }, key: 'id' }
        *
        * The `param` property is the actual argument that was passed,
-       * while the key is the string representing the placeholder.
+       * while they key is the string representing the placeholder.
        */
       const pathParam = getPathParam(args)
 
       /**
        * Determine if the property can be found on the root hooks.
-       * @example "createQuery," "createMutation," etc.
+       * @example "useQuery," "useMutation," etc.
        */
       const isRootProperty = Object.prototype.hasOwnProperty.call(rootHooks, hook)
 
       if (pathParam?.key != null && !isRootProperty) {
-        /**
-         * An array of objects representing path parameter replacements.
-         * @example [ writable({ id: 123 }) ]
-         */
         const allPathParams = [...pathParams, pathParam.param]
-
-        /**
-         * Path parameter strings including the current path parameter as a placeholder.
-         *
-         * @example [ 'nendoroid', ':id' ]
-         */
         const pathsWithParams = [...paths, `:${pathParam.key}`]
-
-        return createEdenTreatyVueQueryProxy(
-          rootHooks,
-          config,
-          pathsWithParams,
-          allPathParams as any,
-        )
+        return createEdenTreatyVueQueryProxy(rootHooks, config, pathsWithParams, allPathParams)
       }
 
-      // Mutate the args to ensure that it is ordered correctly for its corresponding function call.
-      mutateArgs(hook, args, pathParams)
+      // There is no option to pass in input from the public exposed hook,
+      // but the internal root `useMutation` hook expects input as the first argument.
+      // Add an empty element at the front representing "input".
+      if (hook === 'useMutation') {
+        args.unshift(undefined)
+      }
+
+      const modifiedArgs = mutateArgs(hook, args, pathParams)
 
       /**
        * ```ts
        * // The final hook that was invoked.
-       * const hook = "createQuery"
+       * const hook = "useQuery"
        *
        * // The array of path segments up to this point.
        * // Note how ":id" is included, this will be replaced by the `resolveRequest` function from eden.
-       * const pathsCopy = ["nendoroid", ":id", "createQuery"]
+       * const pathsCopy = ["nendoroid", ":id", "name"]
        *
        * // Accummulated path parameters up to this point.
-       * const pathParams = [ writable({ id: 1895 }) ]
+       * const pathParams = [ { id: 1895 } ]
        *
-       * // If the provided a search query and query options, args may look like this.
+       * // The user provided a search query and query options.
        * const args = [ { location: "jp" }, { refetchOnUnmount: true } ]
        *
        * // The accummulated path parameters and search query are merged into one "input" object.
@@ -387,19 +368,14 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
        *
        * // The full function call contains three arguments:
        * // array of path segments, input, and query options.
-       *
-       * @remarks
-       * // For this example, the input has been converted to a Readable because one of the path
-       * // parameters was a Readable Vue store.
-       *
-       * rootHooks.createQuery(
+       * rootHooks.useQuery(
        *   ["nendoroid", ":id", "name"],
-       *   derived({ query: { location: "jp" }, params: { id: 1895 } }),
+       *   { query: { location: "jp" }, params: { id: 1895 } },
        *   { refetchOnMount: false }
        * )
        * ```
        */
-      const result = (rootHooks as any)[hook](pathsCopy, ...args)
+      const result = (rootHooks as any)[hook](pathsCopy, ...modifiedArgs)
 
       return result
     },

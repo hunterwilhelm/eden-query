@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { eden } from '../lib/eden'
 
-const query = eden.api.todos.get.useQuery()
+const query = eden.api.index.get.useQuery()
 
 const rows = computed(() =>
   [
@@ -12,10 +12,15 @@ const rows = computed(() =>
     ['error', query.error.value] as const,
     ['data', query.data.value] as const,
     ['isSuccess', query.isSuccess.value] as const,
+    ['dataUpdatedAt', query.dataUpdatedAt.value] as const,
   ].map(([key, value]) => ({ key, value: JSON.stringify(value) }) as const),
 )
-
-const mutation = eden.api.nendoroid({ id: 1895 }).put.useMutation()
+const utils = eden.useUtils()
+const mutation = eden.api.nendoroid({ id: 1895 }).put.useMutation({
+  onSuccess: () => {
+    utils.api.index.invalidate()
+  },
+})
 
 function mutate() {
   mutation.mutate({
@@ -36,8 +41,8 @@ const mutationRows = computed(() =>
 </script>
 
 <template>
-  <main>Home View</main>
-  <table v-if="query.data">
+  <h1>Query</h1>
+  <table>
     <thead>
       <tr>
         <th>Property</th>
@@ -53,7 +58,7 @@ const mutationRows = computed(() =>
   </table>
 
   <button @click="mutate">Mutate</button>
-  <table v-if="mutation.data">
+  <table>
     <thead>
       <tr>
         <th>Property</th>

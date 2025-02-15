@@ -15,7 +15,6 @@ import {
   type QueryOptions as UseBaseQueryOptions,
   type SkipToken,
   skipToken,
-  useQueryClient,
   type UseQueryOptions,
   type UseQueryReturnType,
 } from '@tanstack/vue-query'
@@ -118,8 +117,9 @@ export function edenUseQueryOptions(
   const {
     abortOnUnmount,
     client,
-    // ssrState,
-    // prefetchQuery
+    //  ssrState,
+    queryClient,
+    // prefetchQuery,
   } = context
 
   const { paths, path, method } = parsedPathAndMethod
@@ -127,7 +127,6 @@ export function edenUseQueryOptions(
   const isInputSkipToken = input === skipToken && typeof input !== 'object'
 
   const queryKey = getQueryKey(paths, isInputSkipToken ? undefined : input, 'query')
-  const queryClient = useQueryClient()
   const defaultOptions = queryClient.getQueryDefaults(queryKey)
 
   // if (isServerQuery(ssrState, options, defaultOptions, isInputSkipToken, queryClient, queryKey)) {

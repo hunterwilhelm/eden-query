@@ -1,5 +1,5 @@
 import { httpBatchLink } from '@ap0nia/eden-vue-query'
-import { VueQueryPlugin } from '@tanstack/vue-query'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import SuperJSON from 'superjson'
 import { createApp } from 'vue'
 
@@ -18,12 +18,15 @@ const client = eden.createClient({
     }),
   ],
 })
-
+const queryClient = new QueryClient()
 const app = createApp(App)
-app.use(VueQueryPlugin)
+app.use(VueQueryPlugin, {
+  queryClient,
+})
 app.use(
   eden.plugin({
     client,
+    queryClient,
   }),
 )
 app.use(router)

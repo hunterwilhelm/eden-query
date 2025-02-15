@@ -9,6 +9,7 @@ import type {
 import {
   type DefaultError,
   type MutateOptions,
+  type MutationOptions,
   type QueryClient,
   // type UseBaseMutationResult,
   useMutation,
@@ -37,7 +38,7 @@ export type EdenUseMutationOptions<
   TError,
   TOutput,
   TContext = unknown,
-> = UseMutationOptions<TOutput, TError, TInput, TContext> & EdenQueryBaseOptions
+> = UseMutationOptions<TOutput, TError, TInput, TContext> & MutationOptions & EdenQueryBaseOptions
 
 export type EdenUseMutationResult<TData, TError, TVariables, TContext, TInput> =
   WithEdenQueryExtension<
@@ -156,8 +157,7 @@ export function getEdenUseMutationOptions(
   options?: EdenUseMutationOptions<any, any, any>,
   config?: any,
 ): UseMutationOptions {
-  const { client } = context
-  const queryClient = useQueryClient()
+  const { client, queryClient = useQueryClient() } = context
 
   const { paths, path, method } = parsedPathsAndMethod
 
@@ -171,8 +171,6 @@ export function getEdenUseMutationOptions(
     ...options,
     mutationKey: mutationKey,
     mutationFn: async (variables: any = {}) => {
-      console.log('variables', variables)
-      console.log('input', input)
       const { body, options } = variables as EdenUseMutationVariables
 
       const resolvedOptions = { ...input, ...options }
@@ -184,7 +182,6 @@ export function getEdenUseMutationOptions(
         path,
         method,
       }
-      console.log('params', params)
 
       const result = await client.query(params)
 

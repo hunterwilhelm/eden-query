@@ -2,16 +2,24 @@ import {
   EdenClient,
   type EdenClientError,
   type EdenCreateClient,
+  httpBatchLink,
+  type HttpBatchLinkOptions,
   type InferRouteOptions,
   parsePathsAndMethod,
 } from '@ap0nia/eden'
-import { type SkipToken, useQuery as __useQuery, useQueryClient } from '@tanstack/vue-query'
+import {
+  QueryClient,
+  type SkipToken,
+  useQuery as __useQuery,
+  useQueryClient,
+} from '@tanstack/vue-query'
 import type { AnyElysia } from 'elysia'
 import { inject, type InjectionKey, type Plugin } from 'vue'
 
 import type { EdenQueryConfig } from '../../config'
-import type { EdenContextProps, EdenContextState } from '../../context'
+import { createUtilityFunctions, type EdenContextProps, type EdenContextState } from '../../context'
 import { getEdenQueryExtension } from '../internal/query-hook-extension'
+import { createEdenTreatyQueryUtils } from './query-utils'
 import {
   type EdenUseMutationOptions,
   type EdenUseMutationResult,
@@ -43,23 +51,30 @@ export function createEdenTreatyQueryRootHooks<
   //  * Ensure that the Elysia.js server uses the batch plugin;
   //  * the types will not verify whether or not this is detected.
   //  */
-  // const createHttpBatchClient = (options?: HttpBatchLinkOptions) => {
-  //   return new EdenClient({
-  //     links: [httpBatchLink(options) as any],
-  //   })
-  // }
+  const createHttpBatchClient = (options?: HttpBatchLinkOptions) => {
+    return new EdenClient({
+      links: [httpBatchLink(options) as any],
+    })
+  }
 
   const createContext = (props: EdenContextProps<TElysia, _TSSRContext>) => {
-    const { abortOnUnmount = false, client, ssrContext = null, ssrState = false } = props
+    const {
+      abortOnUnmount = false,
+      client,
+      ssrContext = null,
+      ssrState = false,
+      queryClient,
+    } = props
 
-    // const utilityFunctions = createUtilityFunctions({ client, queryClient })
+    const utilityFunctions = createUtilityFunctions({ client, queryClient })
 
     return {
       abortOnUnmount,
       client,
       ssrContext,
       ssrState,
-      //   ...utilityFunctions,
+      queryClient,
+      ...utilityFunctions,
     }
   }
 
@@ -86,29 +101,29 @@ export function createEdenTreatyQueryRootHooks<
   //   return <Context.Provider value={contextValue}>{children}</Context.Provider>
   // }
 
-  // const useRawContext = () => {
-  //   const context = Vue.useContext(Context)
+  const useRawContext = () => {
+    const context = inject(contextSymbol)
 
-  //   if (!context) {
-  //     throw new Error(
-  //       'Unable to find tRPC Context. Did you forget to wrap your App inside `withTRPC` HoC?',
-  //     )
-  //   }
+    if (!context) {
+      throw new Error(
+        'Unable to find tRPC Context. Did you forget to wrap your App inside `withTRPC` HoC?',
+      )
+    }
 
-  //   return context
-  // }
+    return context
+  }
 
-  // const useContext = (context = useRawContext()) => {
-  //   // Create and return a stable reference of the utils context.
-  //   return Vue.useMemo(() => createEdenTreatyQueryUtils(context), [context])
-  // }
+  const useContext = (context = useRawContext()) => {
+    // Create and return a stable reference of the utils context.
+    return createEdenTreatyQueryUtils(context)
+  }
 
   const useQuery = (
     originalPaths: readonly string[],
     input?: InferRouteOptions | SkipToken,
     options?: EdenUseQueryOptions<unknown, unknown, TError>,
   ): EdenUseQueryResult<unknown, TError> => {
-    const context = inject(contextSymbol)!
+    const context = useRawContext()
 
     const parsed = parsePathsAndMethod(originalPaths)
 
@@ -116,7 +131,7 @@ export function createEdenTreatyQueryRootHooks<
 
     type HookResult = EdenUseQueryResult<any, TError>
 
-    const queryClient = useQueryClient()
+    const queryClient = context.queryClient ?? useQueryClient()
 
     const hook = __useQuery(queryOptions, queryClient) as HookResult
 
@@ -244,24 +259,14 @@ export function createEdenTreatyQueryRootHooks<
     input?: InferRouteOptions,
     options?: EdenUseMutationOptions<unknown, TError, unknown, unknown>,
   ): EdenUseMutationResult<unknown, TError, unknown, unknown, unknown> => {
-    // const context = useRawContext()
-    const context = inject(contextSymbol)!
+    const context = useRawContext()
 
     const parsed = parsePathsAndMethod(originalPaths)
-    console.log({
-      parsed,
-      context,
-      input,
-      options,
-      config,
-    })
-
     const mutationOptions = getEdenUseMutationOptions(parsed, context, input, options, config)
-    console.log(mutationOptions)
 
     type HookResult = EdenUseMutationResult<any, TError, any, any, any>
 
-    const queryClient = useQueryClient()
+    const queryClient = context.queryClient ?? useQueryClient()
 
     const hook = useEdenMutation(mutationOptions, queryClient) as HookResult
 
@@ -281,7 +286,13 @@ export function createEdenTreatyQueryRootHooks<
   //   const context = useRawContext()
   //   return edenUseSubscription(path, input, opts, context)
   // }
-  const plugin = ({ client }: { client: EdenClient }): Plugin => ({
+  const plugin = ({
+    client,
+    queryClient,
+  }: {
+    client: EdenClient
+    queryClient: QueryClient
+  }): Plugin => ({
     install(app) {
       const { abortOnUnmount = false, ssrContext } = {
         abortOnUnmount: false,
@@ -295,22 +306,21 @@ export function createEdenTreatyQueryRootHooks<
         client,
         ssrContext,
         ssrState: false,
+        queryClient,
       })
 
       app.provide(contextSymbol, contextValue)
     },
   })
   return {
-    test: 'test',
     plugin,
-    //   Provider: EdenProvider,
     createClient,
     //   createHttpClient,
-    //   createHttpBatchClient,
+    createHttpBatchClient,
     //   createContext,
     //   createUtils,
     //   useContext,
-    //   useUtils: useContext,
+    useUtils: useContext,
     useQuery,
     //   useSuspenseQuery,
     //   useInfiniteQuery,
