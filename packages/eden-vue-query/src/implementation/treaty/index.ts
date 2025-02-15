@@ -14,8 +14,10 @@ import type { Prettify } from 'elysia/types'
 
 import type { EdenQueryConfig } from '../../config'
 import type { EdenPlugin } from '../../context'
+import { mutateArgs } from '../../utils/path-param'
 import type { EdenQueryKey } from '../internal/query-key'
-import { createEdenTreatyQueryRootHooks, type EdenTreatyQueryRootHooks } from './root-hooks'
+import { createEdenTreatyQueryRootHooks } from './root-hooks'
+import type { EdenUseMutation } from './use-mutation'
 import type { EdenUseQuery } from './use-query'
 
 /**
@@ -211,11 +213,8 @@ export type EdenTreatyVueQueryLeaf<
 /**
  * vue-query hooks for "mutations". e.g. Basically routes with any HTTP methods other than "GET."
  */
-export type EdenTreatyVueQueryMutationLeaf<
-  _TRoute extends RouteSchema,
-  _TPath extends any[] = [],
-> = {
-  // useMutation: EdenUseMutation<TRoute, TPath>
+export type EdenTreatyVueQueryMutationLeaf<TRoute extends RouteSchema, TPath extends any[] = []> = {
+  useMutation: EdenUseMutation<TRoute, TPath>
 }
 
 /**
@@ -363,7 +362,7 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
       }
 
       // Mutate the args to ensure that it is ordered correctly for its corresponding function call.
-      // mutateArgs(hook, args, pathParams)
+      mutateArgs(hook, args, pathParams)
 
       /**
        * ```ts
@@ -410,3 +409,8 @@ export function createEdenTreatyVueQueryProxy<T extends AnyElysia = AnyElysia>(
 }
 
 export const routeDefinitionSymbol = Symbol('eden-treaty-vue-query-route-definition')
+
+export type EdenTreatyQueryRootHooks<
+  TElysia extends AnyElysia = AnyElysia,
+  TSSRContext = unknown,
+> = ReturnType<typeof createEdenTreatyQueryRootHooks<TElysia, TSSRContext>>

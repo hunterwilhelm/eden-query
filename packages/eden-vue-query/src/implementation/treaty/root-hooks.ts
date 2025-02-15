@@ -12,6 +12,12 @@ import { inject, type InjectionKey, type Plugin } from 'vue'
 import type { EdenQueryConfig } from '../../config'
 import type { EdenContextProps, EdenContextState } from '../../context'
 import { getEdenQueryExtension } from '../internal/query-hook-extension'
+import {
+  type EdenUseMutationOptions,
+  type EdenUseMutationResult,
+  getEdenUseMutationOptions,
+  useEdenMutation,
+} from './use-mutation'
 import { type EdenUseQueryOptions, edenUseQueryOptions, type EdenUseQueryResult } from './use-query'
 export function createEdenTreatyQueryRootHooks<
   TElysia extends AnyElysia,
@@ -233,29 +239,38 @@ export function createEdenTreatyQueryRootHooks<
   //   return [hook.map((h) => h.data), hook] as any
   // }
 
-  // const useMutation = (
-  //   originalPaths: readonly string[],
-  //   input?: InferRouteOptions,
-  //   options?: EdenUseMutationOptions<unknown, TError, unknown, unknown>,
-  // ): EdenUseMutationResult<unknown, TError, unknown, unknown, unknown> => {
-  //   const context = useRawContext()
+  const useMutation = (
+    originalPaths: readonly string[],
+    input?: InferRouteOptions,
+    options?: EdenUseMutationOptions<unknown, TError, unknown, unknown>,
+  ): EdenUseMutationResult<unknown, TError, unknown, unknown, unknown> => {
+    // const context = useRawContext()
+    const context = inject(contextSymbol)!
 
-  //   const parsed = parsePathsAndMethod(originalPaths)
+    const parsed = parsePathsAndMethod(originalPaths)
+    console.log({
+      parsed,
+      context,
+      input,
+      options,
+      config,
+    })
 
-  //   const mutationOptions = getEdenUseMutationOptions(parsed, context, input, options, config)
+    const mutationOptions = getEdenUseMutationOptions(parsed, context, input, options, config)
+    console.log(mutationOptions)
 
-  //   type HookResult = EdenUseMutationResult<any, any, any, any, any>
+    type HookResult = EdenUseMutationResult<any, TError, any, any, any>
 
-  //   const queryClient = context.queryClient ?? useQueryClient()
+    const queryClient = useQueryClient()
 
-  //   const hook = useEdenMutation(mutationOptions, queryClient) as HookResult
+    const hook = useEdenMutation(mutationOptions, queryClient) as HookResult
 
-  //   const { paths } = parsed
+    const { paths } = parsed
 
-  //   hook.eden = Vue.useMemo(() => getEdenQueryExtension({ path: paths }), [paths])
+    hook.eden = getEdenQueryExtension({ path: paths })
 
-  //   return hook
-  // }
+    return hook
+  }
 
   // /* istanbul ignore next -- @preserve */
   // const useSubscription = (
@@ -302,7 +317,7 @@ export function createEdenTreatyQueryRootHooks<
     //   useSuspenseInfiniteQuery,
     //   useQueries,
     //   useSuspenseQueries,
-    //   useMutation,
+    useMutation,
     //   useSubscription,
   }
 }
