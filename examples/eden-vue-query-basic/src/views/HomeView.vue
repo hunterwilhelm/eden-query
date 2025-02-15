@@ -1,19 +1,35 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
+import { eden } from '../lib/eden'
 
-const result = ref(null)
+const query = eden.api.todos.get.useQuery()
 
-// Fetch data
-const fetchData = async () => {
-  const response = await fetch('http://localhost:3000/api')
-  const data = await response.json()
-  result.value = data
-}
-//
-fetchData()
+const rows = computed(() =>
+  [
+    ['isPending', query.isPending.value],
+    ['isFetching', query.isFetching.value],
+    ['isError', query.isError.value],
+    ['error', query.error.value],
+    ['data', query.data.value],
+    ['isSuccess', query.isSuccess.value],
+  ].map(([key, value]) => ({ key, value: JSON.stringify(value) })),
+)
 </script>
 
 <template>
   <main>Home View</main>
-  <pre>{{ result }}</pre>
+  <table v-if="query.data">
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="{ key, value } in rows" :key="key">
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
