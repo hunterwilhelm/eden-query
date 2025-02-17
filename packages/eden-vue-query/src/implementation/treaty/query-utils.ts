@@ -36,8 +36,13 @@ import {
   type EdenContextState,
   getQueryType,
 } from '../../context'
+import type { EdenFetchQueryOptions } from '../../integration/hooks/fetch-query'
+import {
+  type EdenQueryKey,
+  getMutationKey,
+  getQueryKey,
+} from '../../integration/internal/query-key'
 import type { DeepPartial, Override, ProtectedIntersection } from '../../utils/types'
-import { type EdenQueryKey, getMutationKey, getQueryKey } from '../internal/query-key'
 import type { EdenUseMutationOptions } from './use-mutation'
 
 export type EdenTreatyVueQueryUtils<TElysia extends AnyElysia, TSSRContext> = ProtectedIntersection<
@@ -96,20 +101,20 @@ export type EdenTreatyQueryUtilsQueryUtils<
   TError = InferRouteError<TRoute>,
   TKey extends QueryKey = EdenQueryKey<TPath, TInput>,
 > = {
-  // fetch: (
-  //   input: EmptyToVoid<TInput>,
-  //   options?: EdenFetchQueryOptions<TOutput, TError>,
-  // ) => Promise<TOutput>
+  fetch: (
+    input: EmptyToVoid<TInput>,
+    options?: EdenFetchQueryOptions<TOutput, TError>,
+  ) => Promise<TOutput>
 
-  // prefetch: (
-  //   input: EmptyToVoid<TInput>,
-  //   options?: EdenFetchQueryOptions<TOutput, TError>,
-  // ) => Promise<void>
+  prefetch: (
+    input: EmptyToVoid<TInput>,
+    options?: EdenFetchQueryOptions<TOutput, TError>,
+  ) => Promise<void>
 
-  // ensureData: (
-  //   input: EmptyToVoid<TInput>,
-  //   options?: EdenFetchQueryOptions<TOutput, TError>,
-  // ) => Promise<TOutput>
+  ensureData: (
+    input: EmptyToVoid<TInput>,
+    options?: EdenFetchQueryOptions<TOutput, TError>,
+  ) => Promise<TOutput>
 
   invalidate: (
     input?: DeepPartial<TInput>,

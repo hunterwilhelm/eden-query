@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { eden } from '../lib/eden'
 import { routes } from '../router'
-const query = eden.api.index.get.useQuery()
+const [hello, bye] = eden.useQueries((e) => {
+  return [e.api.index.get(), e.api.bye.get()]
+})
 </script>
 
 <template>
   <div>
-    <h1>{{ routes.HomeView.name }}</h1>
-    <pre>{{ JSON.stringify(query.data.value) }}</pre>
+    <h1>{{ routes.UseQueriesView.name }}</h1>
   </div>
 </template>
 

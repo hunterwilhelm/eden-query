@@ -1,4 +1,9 @@
-import type { EdenClient } from '@ap0nia/eden'
+import {
+  type EdenClient,
+  type EdenClientError,
+  type EdenRequestParams,
+  parsePathsAndMethod,
+} from '@ap0nia/eden'
 import {
   type InvalidateOptions,
   type InvalidateQueryFilters,
@@ -6,19 +11,16 @@ import {
   QueryClient,
 } from '@tanstack/vue-query'
 import type { AnyElysia } from 'elysia'
-import type { Plugin } from 'vue'
+import { type Plugin, toRaw } from 'vue'
 
 import type { EdenQueryConfig } from './config'
-import type {
-  EdenMutationKey,
-  EdenQueryKey,
-  EdenQueryType,
-} from './implementation/internal/query-key'
+import type { EdenFetchQueryOptions } from './integration/hooks/fetch-query'
+import type { EdenMutationKey, EdenQueryKey, EdenQueryType } from './integration/internal/query-key'
 
 /**
  * @internal
  */
-export type EdenQueryUtils<_TRouter extends AnyElysia> = {
+export type EdenQueryUtils<TRouter extends AnyElysia> = {
   // /**
   //  * @link https://tanstack.com/query/v5/docs/reference/QueryClient#queryclientfetchquery
   //  */
@@ -33,13 +35,13 @@ export type EdenQueryUtils<_TRouter extends AnyElysia> = {
   //   queryKey: EdenQueryKey,
   //   opts?: EdenFetchInfiniteQueryOptions<unknown, unknown, EdenClientError<TRouter>>,
   // ) => Promise<InfiniteData<unknown, unknown>>
-  // /**
-  //  * @link https://tanstack.com/query/v5/docs/framework/react/guides/prefetching
-  //  */
-  // prefetchQuery: (
-  //   queryKey: EdenQueryKey,
-  //   opts?: EdenFetchQueryOptions<unknown, EdenClientError<TRouter>>,
-  // ) => Promise<void>
+  /**
+   * @link https://tanstack.com/query/v5/docs/framework/react/guides/prefetching
+   */
+  prefetchQuery: (
+    queryKey: EdenQueryKey,
+    opts?: EdenFetchQueryOptions<unknown, EdenClientError<TRouter>>,
+  ) => Promise<void>
   // /**
   //  * @link https://tanstack.com/query/v5/docs/reference/QueryClient#queryclientprefetchinfinitequery
   //  */
@@ -235,7 +237,7 @@ export function getQueryType(utilName: string): EdenQueryType {
  */
 export function createUtilityFunctions<T extends AnyElysia>(
   options: EdenContextProps<T, any>,
-  _config?: EdenQueryConfig,
+  config?: EdenQueryConfig,
 ): EdenQueryUtils<T> {
   const { client, queryClient } = options
   return {
@@ -322,36 +324,37 @@ export function createUtilityFunctions<T extends AnyElysia>(
     //   })
     // },
 
-    // prefetchQuery: async (queryKey, options = {}) => {
-    //   const { path, method } = parsePathsAndMethod(queryKey[0])
+    prefetchQuery: async (queryKey, optionsMaybeRef) => {
+      const options = toRaw(optionsMaybeRef) ?? {}
+      const { path, method } = parsePathsAndMethod(queryKey[0])
 
-    //   const { eden, ...queryOptions } = options
+      const { eden, ...queryOptions } = options
 
-    //   return await queryClient.prefetchQuery({
-    //     ...queryOptions,
-    //     queryKey,
-    //     queryFn: async () => {
-    //       const options: any = { ...(queryKey[1]?.input ?? {}) }
+      return await queryClient.prefetchQuery({
+        ...queryOptions,
+        queryKey,
+        queryFn: async () => {
+          const options: any = { ...(queryKey[1]?.input ?? {}) }
 
-    //       const params = {
-    //         ...config,
-    //         ...eden,
-    //         options,
-    //         path,
-    //         method,
-    //         fetcher: eden?.fetcher ?? config?.fetcher ?? globalThis.fetch,
-    //       } satisfies EdenRequestParams
+          const params = {
+            ...config,
+            ...eden,
+            options,
+            path,
+            method,
+            fetcher: eden?.fetcher ?? config?.fetcher ?? globalThis.fetch,
+          } satisfies EdenRequestParams
 
-    //       const result = await client.query(params)
+          const result = await client.query(params)
 
-    //       if (result.error != null) {
-    //         throw result.error
-    //       }
+          if (result.error != null) {
+            throw result.error
+          }
 
-    //       return result.data
-    //     },
-    //   })
-    // },
+          return result.data
+        },
+      })
+    },
 
     // prefetchInfiniteQuery: async (queryKey, options = {}) => {
     //   const { path, method } = parsePathsAndMethod(queryKey[0])

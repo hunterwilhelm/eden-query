@@ -10,6 +10,7 @@ import {
 import {
   QueryClient,
   type SkipToken,
+  useQueries as __useQueries,
   useQuery as __useQuery,
   useQueryClient,
 } from '@tanstack/vue-query'
@@ -18,7 +19,8 @@ import { inject, type InjectionKey, type Plugin } from 'vue'
 
 import type { EdenQueryConfig } from '../../config'
 import { createUtilityFunctions, type EdenContextProps, type EdenContextState } from '../../context'
-import { getEdenQueryExtension } from '../internal/query-hook-extension'
+import { getEdenQueryExtension } from '../../integration/internal/query-hook-extension'
+import type { EdenUseQueryOptionsForUseQueries } from '../../integration/internal/use-query-options-for-use-queries'
 import { createEdenTreatyQueryUtils } from './query-utils'
 import {
   type EdenUseMutationOptions,
@@ -26,15 +28,16 @@ import {
   getEdenUseMutationOptions,
   useEdenMutation,
 } from './use-mutation'
+import { createTreatyUseQueriesProxy, type EdenTreatyUseQueries } from './use-queries'
 import { type EdenUseQueryOptions, edenUseQueryOptions, type EdenUseQueryResult } from './use-query'
 export function createEdenTreatyQueryRootHooks<
   TElysia extends AnyElysia,
-  _TSSRContext = unknown,
+  TSSRContext = unknown,
   TError = EdenClientError<TElysia>,
 >(config?: EdenQueryConfig<TElysia>) {
-  // type ProviderContext = EdenContextState<TElysia, TSSRContext>
+  type ProviderContext = EdenContextState<TElysia, TSSRContext>
 
-  // const Context = (config?.context ?? EdenQueryContext) as Vue.Context<ProviderContext>
+  const ContextSymbol = contextSymbol as InjectionKey<ProviderContext>
 
   const createClient: EdenCreateClient<TElysia> = (options) => {
     return new EdenClient(options)
@@ -57,7 +60,7 @@ export function createEdenTreatyQueryRootHooks<
     })
   }
 
-  const createContext = (props: EdenContextProps<TElysia, _TSSRContext>) => {
+  const createContext = (props: EdenContextProps<TElysia, TSSRContext>) => {
     const {
       abortOnUnmount = false,
       client,
@@ -102,7 +105,7 @@ export function createEdenTreatyQueryRootHooks<
   // }
 
   const useRawContext = () => {
-    const context = inject(contextSymbol)
+    const context = inject(ContextSymbol)
 
     if (!context) {
       throw new Error(
@@ -215,30 +218,36 @@ export function createEdenTreatyQueryRootHooks<
   //   return [hook.data, hook] as any
   // }
 
-  // const useQueries: EdenTreatyUseQueries<TElysia> = (queriesCallback) => {
-  //   const context = useRawContext()
+  const useQueries: EdenTreatyUseQueries<TElysia> = (queriesCallback) => {
+    const context = useRawContext()
 
-  //   const { ssrState, queryClient, prefetchQuery, client } = context
+    const {
+      ssrState,
+      queryClient,
+      // prefetchQuery,
+      client,
+    } = context
 
-  //   const proxy = createTreatyUseQueriesProxy(client)
+    const proxy = createTreatyUseQueriesProxy(client)
 
-  //   const queries: readonly EdenUseQueryOptionsForUseQueries<any, any>[] = queriesCallback(proxy)
+    const queries: readonly EdenUseQueryOptionsForUseQueries<any, any, any, any>[] =
+      queriesCallback(proxy)
 
-  //   // Not SSR.
-  //   if (!(typeof window === 'undefined' && ssrState === 'prepass')) {
-  //     return __useQueries({ queries }, queryClient)
-  //   }
+    // Not SSR.
+    if (!(typeof window === 'undefined' && ssrState === 'prepass')) {
+      return __useQueries({ queries }, queryClient)
+    }
 
-  //   for (const query of queries) {
-  //     const shouldSsr = query.eden?.ssr !== false
+    // for (const query of queries) {
+    //   const shouldSsr = query.eden?.ssr !== false
 
-  //     if (shouldSsr && !queryClient.getQueryCache().find(query)) {
-  //       void prefetchQuery(query.queryKey, query)
-  //     }
-  //   }
+    //   if (shouldSsr && !queryClient.getQueryCache().find(query)) {
+    //     void prefetchQuery(query.queryKey, unref(query))
+    //   }
+    // }
 
-  //   return __useQueries({ queries }, queryClient)
-  // }
+    return __useQueries({ queries }, queryClient)
+  }
 
   // const useSuspenseQueries: EdenTreatyUseSuspenseQueries<TElysia> = (queriesCallback) => {
   //   const context = useRawContext()
@@ -325,7 +334,7 @@ export function createEdenTreatyQueryRootHooks<
     //   useSuspenseQuery,
     //   useInfiniteQuery,
     //   useSuspenseInfiniteQuery,
-    //   useQueries,
+    useQueries,
     //   useSuspenseQueries,
     useMutation,
     //   useSubscription,

@@ -255,7 +255,8 @@ export function createEdenTreatyQueryRootHooks<
 
     const proxy = createTreatyUseQueriesProxy(client)
 
-    const queries: readonly EdenUseQueryOptionsForUseQueries<any, any>[] = queriesCallback(proxy)
+    const queries: readonly EdenUseQueryOptionsForUseQueries<any, any, any, any>[] =
+      queriesCallback(proxy)
 
     // Not SSR.
     if (!(typeof window === 'undefined' && ssrState === 'prepass')) {

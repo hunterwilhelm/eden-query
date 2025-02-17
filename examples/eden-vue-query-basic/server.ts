@@ -50,10 +50,10 @@ function createRandomId() {
  */
 const rootController = new Elysia()
   .get('/', () => {
-    return 'Hello, React!'
+    return 'Hello, Vue!'
   })
   .get('/bye', () => {
-    return 'Goodbye, React!'
+    return 'Goodbye, Vue!'
   })
   .get(
     '/names',

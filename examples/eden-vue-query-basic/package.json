@@ -11,7 +11,7 @@
   "dependencies": {
     "@ap0nia/eden-vue-query": "workspace:^",
     "@elysiajs/cors": "^1.1.0",
-    "@tanstack/vue-query": "^5.66.0",
+    "@tanstack/vue-query": "^5.51.16",
     "@vitejs/plugin-vue": "^5.2.1",
     "elysia": "1.1.19",
     "react": "^18.3.1",

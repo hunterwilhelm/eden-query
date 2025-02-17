@@ -21,10 +21,10 @@ import type { RouteSchema } from 'elysia'
 import { isRef } from 'vue'
 
 import type { EdenContextState } from '../../context'
+import type { EdenQueryBaseOptions } from '../../integration/internal/query-base-options'
+import type { WithEdenQueryExtension } from '../../integration/internal/query-hook-extension'
+import { getMutationKey } from '../../integration/internal/query-key'
 import type { Override } from '../../utils/types'
-import type { EdenQueryBaseOptions } from '../internal/query-base-options'
-import type { WithEdenQueryExtension } from '../internal/query-hook-extension'
-import { getMutationKey } from '../internal/query-key'
 
 type UseBaseMutationResult<TData, TError, TVariables, TContext> = UseMutationResult<
   TData,

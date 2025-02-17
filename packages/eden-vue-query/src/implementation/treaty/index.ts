@@ -16,11 +16,12 @@ import type { Prettify } from 'elysia/types'
 
 import type { EdenQueryConfig } from '../../config'
 import type { EdenPlugin } from '../../context'
+import type { EdenQueryKey } from '../../integration/internal/query-key'
 import { mutateArgs } from '../../utils/path-param'
-import type { EdenQueryKey } from '../internal/query-key'
 import type { EdenTreatyVueQueryUtils } from './query-utils'
 import { createEdenTreatyQueryRootHooks } from './root-hooks'
 import type { EdenUseMutation } from './use-mutation'
+import type { EdenTreatyUseQueries } from './use-queries'
 import type { EdenUseQuery } from './use-query'
 
 /**
@@ -65,7 +66,7 @@ export interface EdenTreatyVueQueryBase<TElysia extends AnyElysia, TSSRContext> 
   /**
    * Wraps the `useQueries` vue-query hook in a type-safe proxy.
    */
-  // useQueries: EdenTreatyUseQueries<TElysia>
+  useQueries: EdenTreatyUseQueries<TElysia>
   /**
    * Wraps the `useSuspenseQueries` vue-query hook in a type-safe proxy.
    */
