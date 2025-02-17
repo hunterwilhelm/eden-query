@@ -1,6 +1,6 @@
 {
-  "name": "@ap0nia/eden-vue-query",
-  "version": "1.6.0",
+  "name": "@hunterforks/eden-vue-query",
+  "version": "1.6.1-beta.1",
   "description": "elysia.js eden and vue-query integration",
   "license": "MIT",
   "repository": {
@@ -54,5 +54,14 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "files": [
+    "src",
+    "CHANGELOG.md",
+    "README.md",
+    "tsconfig.json",
+    "tsup.config.ts",
+    "dist",
+    "turbo"
+  ]
 }
